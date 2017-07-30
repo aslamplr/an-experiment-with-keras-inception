@@ -1,7 +1,12 @@
-from .. import Inferer
+from python import Inferer
 from keras.applications.inception_v3 import preprocess_input
 
-inferer = Inferer(model_save_path='saved_models/inception_v3_full.h5',
+def main():
+    inferer = Inferer(model_save_path='../saved_models/inception_v3_full.h5',
                   preprocessing_function=preprocess_input)
+    top_two_pred = inferer.infer(img_path='../data/hand_numbers/validation/one/hand_3.jpg')
+    for p in top_two_pred:
+        print("'%s' with confidence %d%%"%(p[1], p[2] * 100))
 
-inferer.infer(img_path='hand_numbers/validation/hand_one/hand_1.jpg')
+if __name__ == '__main__':
+    main()

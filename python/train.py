@@ -62,7 +62,7 @@ class Trainer(object):
                                 target_size=self.target_size,
                                 batch_size=self.batch_size,
                                 class_mode='categorical')
-        self.model = Model(self.base_model)
+        self.model = genModel(self.base_model)
         compileModel(self.model, self.learning_rate)
 
     def start(self):
@@ -88,7 +88,7 @@ def compileModel(model, learning_rate):
                       metrics=['accuracy'])
 
 
-def Model(base_model):
+def genModel(base_model):
         # add a global spatial average pooling layer
         x = base_model.output
         x = GlobalAveragePooling2D()(x)

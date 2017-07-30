@@ -1,4 +1,4 @@
 {
-	"0": ["n01", "hand_one"],
-	"1": ["n02", "hand_two"]
+	"0": ["one_finger", "one"],
+	"1": ["two_fingers", "two"]
 }

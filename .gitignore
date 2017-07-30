@@ -8,8 +8,13 @@ __pycache__/
 
 #ide
 .idea/
+
 #training data
 data/hand_numbers/*
+
+#directories to ignore
+tools/tensorboard_logs/
+*.h5
 
 # Distribution / packaging
 .Python
