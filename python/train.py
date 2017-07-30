@@ -1,4 +1,4 @@
-from keras.applications.inception_v3 import InceptionV3
+from keras.applications.inception_v3 import InceptionV3, preprocess_input
 from keras.models import Model
 from keras.layers import Dense, GlobalAveragePooling2D
 from keras.preprocessing.image import ImageDataGenerator
@@ -10,14 +10,24 @@ class Trainer(object):
                  image_src_path='hand_numbers',
                  total_samples=200,
                  batch_size=32,
+                 epochs=1000,
+                 target_size=(299,299),
+                 learning_rate=0.0001,
                  tensorboard_callback_enabled=True,
-                 tensorboard_callback_logdir='./logs'):
+                 tensorboard_callback_logdir='./logs',
+                 base_model=InceptionV3(include_top=False),
+                 preprocessing_function=preprocess_input):
         self.total_samples = total_samples
         self.image_src_path = image_src_path
         self.batch_size = batch_size
         self.tensorboard_callback_ebabled = tensorboard_callback_enabled,
         self.tensorboard_callback_logdir = tensorboard_callback_logdir
         self.model_save_path = model_save_path
+        self.base_model = base_model
+        self.preprocessing_function = preprocessing_function
+        self.target_size = target_size
+        self.learning_rate = learning_rate
+        self.epochs = epochs
 
         if self.tensorboard_callback_ebabled:
                 from keras.callbacks import TensorBoard
@@ -40,19 +50,20 @@ class Trainer(object):
                         rotation_range=40,
                         width_shift_range=0.2,
                         height_shift_range=0.2,
+                        preprocessing_function=self.preprocessing_function,
                         fill_mode='nearest').flow_from_directory(
                                 self.image_src_path + '/train',
-                                target_size=(299, 299),
+                                target_size=self.target_size,
                                 batch_size=self.batch_size,
                                 class_mode='categorical')
-        self.validation_generator = ImageDataGenerator(rescale=1./255).flow_from_directory(
+        self.validation_generator = ImageDataGenerator(rescale=1./255,
+                                        preprocessing_function=self.preprocessing_function).flow_from_directory(
                                 self.image_src_path + '/validation',
-                                target_size=(299, 299),
+                                target_size=self.target_size,
                                 batch_size=self.batch_size,
                                 class_mode='categorical')
-        self.model = Model()
-        compileModel(self.model)
-
+        self.model = Model(self.base_model)
+        compileModel(self.model, self.learning_rate)
 
     def start(self):
             # we train our model again (this time fine-tuning the top 2 inception blocks
@@ -60,7 +71,7 @@ class Trainer(object):
             self.model.fit_generator(
                     self.train_generator,
                     steps_per_epoch=self.total_samples // self.batch_size,
-                    epochs=1000,
+                    epochs=self.epochs,
                     validation_data=self.validation_generator,
                     validation_steps=2,
                     callbacks=[self.tensorboard_callback])
@@ -68,16 +79,16 @@ class Trainer(object):
             self.model.save(self.model_save_path)
 
 
-def compileModel(model):
+def compileModel(model, learning_rate):
         # we need to recompile the model for these modifications to take effect
         # we use SGD with a low learning rate
         from keras.optimizers import SGD
-        model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy', metrics=['accuracy'])
+        model.compile(optimizer=SGD(lr=learning_rate, momentum=0.9),
+                      loss='categorical_crossentropy',
+                      metrics=['accuracy'])
 
-def Model():
-        # create the base model from InceptionV3
-        base_model = InceptionV3(include_top=False)
 
+def Model(base_model):
         # add a global spatial average pooling layer
         x = base_model.output
         x = GlobalAveragePooling2D()(x)
