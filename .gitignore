@@ -15,6 +15,8 @@ data/hand_numbers/*
 #directories to ignore
 tools/tensorboard_logs/
 *.h5
+*.pb
+*.ascii
 
 # Distribution / packaging
 .Python

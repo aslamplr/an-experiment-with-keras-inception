@@ -16,5 +16,6 @@ Directory structure for reference:
    |---utils
    |-----tensorflow
    |-saved_models
+   |-tensorflow_model
    |-tools
    |---tensorboard_logs
