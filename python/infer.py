@@ -7,7 +7,7 @@ from .utils import decode_predictions
 
 class Inferer(object):
     def __init__(self,
-                 model_save_path='saved_models/inception_v3_full.h5',
+                 model_save_path='../saved_models/inception_v3_full.h5',
                  preprocessing_function=preprocess_input):
         self.model = load_model(model_save_path)
         self.preprocessing_function = preprocessing_function

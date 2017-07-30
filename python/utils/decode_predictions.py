@@ -1,8 +1,8 @@
 import json
 
 
-def decode_predictions(preds, top=5):
-    CLASS_INDEX = json.load(open('hand_class_index.json'))
+def decode_predictions(preds, top=2):
+    CLASS_INDEX = json.load(open('../saved_models/hand_class_index.json'))
     results = []
     for pred in preds:
         top_indices = pred.argsort()[-top:][::-1]
